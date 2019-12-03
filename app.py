@@ -12,9 +12,7 @@ import pandas as pd
 import nltk 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 sid = SentimentIntensityAnalyzer()
-sid.polarity_scores("Weekend proyect")
 from functools import reduce
-
 
 # # este decorador route, vincula un codigo a una URL
 
@@ -58,9 +56,6 @@ def addMessage(chat_id):
     }
     print(new_user)
     coll.insert_one(new_message)
-    
-
-
 
 @post('/chat/<chat_id>/adduser')
 
@@ -105,8 +100,6 @@ def newUser():
     coll.insert_one(new_user)
     print(f"{name} added to collection with id {new_id}")
 
-
-
 @get("/chat/<chat_id>/list")
 def get_chat(chat_id):
     return dumps(coll.find({"idChat":int(chat_id)},{"_id":0}))
@@ -116,30 +109,6 @@ def get_chat(chat_id):
 def get_user(user):
     return dumps(coll.find({"userName":str(user)},{"text":0}))
 
-
-
-@get('/chat/<chat_id>/sentiment')
-
-def getSentiment(chat_id):
-    query = list(coll.find({'idChat':int(chat_id)}, {"userName":1,"idUser":1,"text": 1,"_id":0}))
-    sid = SentimentIntensityAnalyzer()
-    total_info=[]
-    for text in query:
-        info={}
-        info["userName"]=text["userName"]
-        info["idChat"]=int(chat_id)
-        info["text"]=text["text"]
-        info["sentiment"]=sid.polarity_scores(text["text"])
-        total_info.append(info)
-    print(total_info)
-    #return dumps(total_info)
-    comp_sent = [s['sentiment']['compound'] for s in total_info]
-    avg = reduce((lambda x, y: x+y), comp_sent)/len(comp_sent)
-    return dumps({"Sentiments": total_info,
-
-                  "compound sentiments": comp_sent,
-
-                  "avg sentiment values:[-1, 1]": avg})
 
 
 
